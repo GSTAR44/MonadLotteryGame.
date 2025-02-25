@@ -57,4 +57,4 @@ The core contract is written in **Solidity** and deployed on **Monad Testnet**.
 - [ ] Improve Security & Code Audits  
 
 ## 📢 Contributing  
-Feel free to **fork, modify, and contribute**! Pull requests are welcome.
+Feel free to **fork, modify, and contribute**! Pull requests are welcome. I am fibon. Mention my Git profile.
