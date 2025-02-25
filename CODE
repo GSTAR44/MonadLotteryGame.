@@ -1,0 +1,54 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract MonadLottery {
+    address public owner;
+    address[] public players;
+    uint256 public lotteryEnd;
+    bool public lotteryActive;
+    
+    event LotteryStarted(uint256 endTime);
+    event PlayerEntered(address player);
+    event WinnerChosen(address winner);
+    
+    constructor() {
+        owner = msg.sender;
+    }
+
+    function startLottery(uint256 durationInMinutes) external {
+        require(msg.sender == owner, "Only owner can start the lottery");
+        require(!lotteryActive, "Lottery already active");
+        
+        lotteryEnd = block.timestamp + (durationInMinutes * 1 minutes);
+        lotteryActive = true;
+        delete players;
+        
+        emit LotteryStarted(lotteryEnd);
+    }
+    
+    function enter() external payable {
+        require(lotteryActive, "Lottery not active");
+        require(msg.value >= 0.01 ether, "Minimum 0.01 ETH to enter");
+        
+        players.push(msg.sender);
+        emit PlayerEntered(msg.sender);
+    }
+    
+    function pickWinner() external {
+        require(msg.sender == owner, "Only owner can pick winner");
+        require(block.timestamp >= lotteryEnd, "Lottery still ongoing");
+        require(players.length > 0, "No players in lottery");
+        
+        uint256 winnerIndex = random() % players.length;
+        address winner = players[winnerIndex];
+        
+        payable(winner).transfer(address(this).balance);
+        lotteryActive = false;
+        
+        emit WinnerChosen(winner);
+    }
+    
+    function random() internal view returns (uint256) {
+        return uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty, players.length)));
+    }
+}
